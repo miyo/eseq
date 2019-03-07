@@ -4,6 +4,8 @@ set project_target "xc7z020clg400-1"
 set source_files { \
 		       ./sources/bloch_point_gen.vhd \
 		       ./sources/xorshift32.vhd \
+		       ./sources/qbit_op.vhd \
+		       ./sources/qbit.vhd \
 		   }
 set ipcore_files { \
 		       ./ip/zybo_z7-20/conv_float_to_int32.xci \
@@ -15,6 +17,7 @@ set ipcore_files { \
 set testbench_files { \
 		       ./sources/bloch_point_gen_sim.vhd \
 		       ./sources/xorshift32_sim.vhd \
+		       ./sources/qbit_sim.vhd \
 		   }
 
 #set constraint_files {./zybo_z7_20_audio_test.xdc}
@@ -24,15 +27,21 @@ add_files -norecurse $source_files
 #add_files -fileset constrs_1 -norecurse $constraint_files
 import_ip -files $ipcore_files
 update_compile_order -fileset sources_1
+set_property top qbit [current_fileset]
+update_compile_order -fileset sources_1
 
 set_property SOURCE_SET sources_1 [get_filesets sim_1]
 add_files -fileset sim_1 -norecurse $testbench_files
 update_compile_order -fileset sim_1
 
+set_property top qbit_sim [get_filesets sim_1]
+set_property top_lib xil_defaultlib [get_filesets sim_1]
+update_compile_order -fileset sim_1
+
 reset_project
 
-launch_runs synth_1 -jobs 4
-wait_on_run synth_1
+#launch_runs synth_1 -jobs 4
+#wait_on_run synth_1
 
 #launch_runs impl_1 -jobs 4
 #wait_on_run impl_1
